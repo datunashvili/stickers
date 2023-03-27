@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Google Drive Links</title>
+	<script>
+		function clearResults() {
+			document.getElementById('resultsContainer').innerHTML = '';
+		}
+
+		function addResult(container, link) {
+			const item = document.createElement('div');
+			item.style.border = '2px solid black';
+			item.style.padding = '12px'
+			item.style.margin = '2px';
+
+			const anchor = document.createElement('a');
+			anchor.setAttribute('href', link);
+			anchor.setAttribute('target', '_blank');
+			anchor.style.display = 'block';
+			anchor.appendChild(document.createTextNode(link));
+
+			const image = document.createElement('img');
+			image.setAttribute('src', link);
+			image.style.width = '512px';
+			image.style.display = 'block';
+
+			item.appendChild(anchor);
+			item.appendChild(image);
+
+			container.appendChild(item);
+		}
+
+		function addResults(links) {
+			const container = document.getElementById('resultsContainer');
+			for (const link of links) {
+				addResult(container, link);
+			}
+		}
+
+		function getInputValue() {
+			return document.getElementById('userInput').value;
+		}
+
+		function parseLinks(inputValue) {
+			return inputValue.split(/\s+/g);
+		}
+
+		function toViewableLink(link) {
+			const baseUrl = 'https://drive.google.com/file/d/';
+			if (link.indexOf(baseUrl) === -1) {
+				return;
+			}
+
+			const start = baseUrl.length;
+			const end = link.indexOf('/view', start);
+			if (end === -1) {
+				return;
+			}
+
+			const id = link.substring(start, end);
+			return `https://drive.google.com/uc?export=view&id=${id}`;
+		}
+
+		function handleSubmit() {
+			clearResults();
+			const inputValue = getInputValue();
+			const links = parseLinks(inputValue)
+				.map(toViewableLink)
+				.filter(l => !!l);
+			addResults(links);
+		}
+
+		function handleClear() {
+			document.getElementById('userInput').value = '';
+			clearResults();
+		}
+	</script>
+</head>
+
+<body>
+
+	<div style="margin:auto; width: 90%;">
+		<!-- Input -->
+		<h3>Paste your links here (whitespace-separated):</h3>
+		<textarea id="userInput" type="text" style="width: 100%; height: 144px; display: block;"></textarea>
+
+		<div style="margin-top: 8px">
+			<button id="clearButton" onclick="handleClear()">Clear</button>
+			<button id="submitButton" onclick="handleSubmit()">Go!</button>
+		</div>
+
+		<!-- Results -->
+		<div id="resultsContainer" style="margin-top: 32px; display: flex; flex-wrap: wrap;"></div>
+	</div>
+</body>
+
+</html>
